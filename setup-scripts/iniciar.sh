@@ -17,13 +17,13 @@ echo $(date) > /home/rsa/resultados/registro-continuo/nueva-estacion.txt
 echo 'nueva-estacion.txt' > /home/rsa/tmp/NombreArchivoRegistroContinuo.tmp
 
 # Compila todos los programas escritos en C 
-g++ /home/rsa/Acelerografo-RSA/programas/Digitalizador_2022-05-12_VALE.cpp -o /home/rsa/ejecutables/digitalizador -lbcm2835 -lwiringPi
-gcc /home/rsa/Acelerografo-RSA/programas/ComprobarRegistro_V3.c -o /home/rsa/ejecutables/comprobarregistro
-gcc /home/rsa/Acelerografo-RSA/programas/ExtraerEventoBin_V2.c -o /home/rsa/ejecutables/extraerevento
-gcc /home/rsa/Acelerografo-RSA/programas/ResetMaster.c -o /home/rsa/ejecutables/resetmaster -lbcm2835 -lwiringPi 
+g++ /home/rsa/Digitalizador-RSA/programas/Digitalizador_2022-05-12_VALE.cpp -o /home/rsa/ejecutables/digitalizador -lbcm2835 -lwiringPi
+gcc /home/rsa/Digitalizador-RSA/programas/ComprobarRegistro_V3.c -o /home/rsa/ejecutables/comprobarregistro
+gcc /home/rsa/Digitalizador-RSA/programas/ExtraerEventoBin_V2.c -o /home/rsa/ejecutables/extraerevento
+gcc /home/rsa/Digitalizador-RSA/programas/ResetMaster.c -o /home/rsa/ejecutables/resetmaster -lbcm2835 -lwiringPi 
 
 # Copia todos los programas escritos en Python a la carpeta /home/rsa/ejecutables
-cp /home/rsa/Acelerografo-RSA/programas/*.py /home/rsa/ejecutables/
+cp /home/rsa/Digitalizador-RSA/programas/*.py /home/rsa/ejecutables/
 
 # Copia los task-scripts al directorio /usr/local/bin
 sudo cp task-scripts/comprobar.sh /usr/local/bin/comprobar
