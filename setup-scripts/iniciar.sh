@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copiar el directorio "Configuracion" a la ruta /home/rsa/
+# Copiar el directorio "configuracion" a la ruta /home/rsa/
 cp -r configuracion /home/rsa/
 
 # Crea los directorios necesarios
@@ -10,17 +10,14 @@ mkdir -p /home/rsa/tmp
 mkdir -p /home/rsa/resultados/eventos-detectados
 mkdir -p /home/rsa/resultados/eventos-extraidos
 mkdir -p /home/rsa/resultados/registro-continuo
-mkdir -p /home/rsa/resultados/consumo
+mkdir -p /home/rsa/resultados/mseed
 
 # Crea los archivos necesarios
 echo $(date) > /home/rsa/resultados/registro-continuo/nueva-estacion.txt
 echo 'nueva-estacion.txt' > /home/rsa/tmp/NombreArchivoRegistroContinuo.tmp
 
 # Compila todos los programas escritos en C 
-g++ /home/rsa/Digitalizador-RSA/programas/Digitalizador_2022-05-12_VALE.cpp -o /home/rsa/ejecutables/digitalizador -lbcm2835 -lwiringPi
-gcc /home/rsa/Digitalizador-RSA/programas/ComprobarRegistro_V3.c -o /home/rsa/ejecutables/comprobarregistro
-gcc /home/rsa/Digitalizador-RSA/programas/ExtraerEventoBin_V2.c -o /home/rsa/ejecutables/extraerevento
-gcc /home/rsa/Digitalizador-RSA/programas/ResetMaster.c -o /home/rsa/ejecutables/resetmaster -lbcm2835 -lwiringPi 
+sh setup-scripts/compilar.sh
 
 # Copia todos los programas escritos en Python a la carpeta /home/rsa/ejecutables
 cp /home/rsa/Digitalizador-RSA/programas/*.py /home/rsa/ejecutables/

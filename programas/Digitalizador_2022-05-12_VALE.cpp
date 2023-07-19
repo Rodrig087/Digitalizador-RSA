@@ -103,30 +103,30 @@ using namespace std;
 // Define la frecuencia de muestreo
 #define fsample 100
 // Numero de bytes por muestra, 7 en total, 1 de ganancia y 6 de CH1, CH2 y CH3
-//#define numBytesPorMuestra 7
+// #define numBytesPorMuestra 7
 // Numero de bytes a recibir por SPI, si se considera 5 muestreos: 5x7 = 35
-//#define numMuestrasEnvio 35
-//#define numMuestrasEnvio 7
+// #define numMuestrasEnvio 35
+// #define numMuestrasEnvio 7
 // Numero de bytes por muestra, 5 en total, se consideran los bits de cada variable
 // Entonces un dato con los 4 bits de la ganancia y 4 bits MSB CH1, otro dato con
 // los 8 bits LSB del CH1, otro dato con los 4 bits MSB de los CH2 y CH3, por ultimo
 // dos datos con los 8 bits LSB de los CH2 y CH3
 #define numBytesPorMuestra 5
 // Numero de bytes a enviar por SPI, si se considera 10 muestreos: 10x5 = 50
-//#define numMuestrasEnvio 50
+// #define numMuestrasEnvio 50
 #define numMuestrasEnvio 250
 // Variable que indica el indice de inicio para almacenar los datos recibidos del dsPIC en el vector
 // Se comienza en 5, porque los primeros 5 valores corresponden a 4 bytes de la fecha tipo long
 // Y el 5to al valor MSB de la hora en long que siempre es 0, por eso no se envia desde el dsPIC
-//#define numBytesFechaMasHoraMSB 5
+// #define numBytesFechaMasHoraMSB 5
 #define numBytesFechaMasHoraMSB 2
 // Bytes de tiempo a recibir, unicamenente son 6. 3 que corresponden a los bytes menos significativo
 // de la hora en formato long y 3 a la fecha en formato long
 const unsigned char numBytesHoraToRec = 6;
-//const unsigned char numBytesTiempo = 3;
-// Contador del total de muestras, para saber cuantas hay que guardar en el archivo de texto
-// El tiempo si bien se recibe al ultimo, se guarda en las primeras numBytesTiempo posiciones, por eso comienza el contador en numBytesTiempo
-//unsigned int contadorDatosToSave = numBytesFechaMasHoraMSB + numBytesHoraToRec;
+// const unsigned char numBytesTiempo = 3;
+//  Contador del total de muestras, para saber cuantas hay que guardar en el archivo de texto
+//  El tiempo si bien se recibe al ultimo, se guarda en las primeras numBytesTiempo posiciones, por eso comienza el contador en numBytesTiempo
+// unsigned int contadorDatosToSave = numBytesFechaMasHoraMSB + numBytesHoraToRec;
 unsigned int contadorDatosToSave = 0;
 //*************************************************************************************************
 // Fin Declaracion de constantes
@@ -143,14 +143,14 @@ bool is_GPS_Connected = false;
 unsigned char contadorTimeOutGPS = 0;
 // Vector para almacenar los datos recibidos por SPI y que se van a guardar en el archivo de texto
 // Se guardan en el archivo cada segundo, entonces el total de datos es fsample*numBytesPorMuestra + numBytesTiempoToRec
-//const unsigned int totalDatosPorMin = 60*(fsample*numBytesPorMuestra) + numBytesFechaMasHoraMSB + numBytesHoraToRec;
-const unsigned int totalDatosPorMin = 60 * (fsample * numBytesPorMuestra); //60*(100*5)=30000
+// const unsigned int totalDatosPorMin = 60*(fsample*numBytesPorMuestra) + numBytesFechaMasHoraMSB + numBytesHoraToRec;
+const unsigned int totalDatosPorMin = 60 * (fsample * numBytesPorMuestra); // 60*(100*5)=30000
 
 // Declara el vector para recibir los datos con memoria dinámica, en el caso de que no se conozca la dimension
 // Asi ptrVectorDatos apunta a la direccion inicial del vector
 // Para acceder a los elementos se puede utilizar: ptrVectorDatos[1] o *(ptrVectorDatos + 1)
-//unsigned char ptrVectorDatosToRec [numMuestrasEnvio + numBytesHoraToRec];
-//unsigned char ptrVectorDatosToSave [totalDatosPorMin];
+// unsigned char ptrVectorDatosToRec [numMuestrasEnvio + numBytesHoraToRec];
+// unsigned char ptrVectorDatosToSave [totalDatosPorMin];
 unsigned char *ptrVectorDatosToRec;
 unsigned char *ptrVectorDatosToSave;
 // Vector para almacenar los bytes de las dos variables long de tiempo recibidas por el dsPIC
@@ -162,9 +162,11 @@ unsigned char vectorTimeDSPIC[6];
 FILE *objFile;
 // Objeto tipo File para el archivo donde se guardan las lecturas instantaneas del canal
 FILE *fTmpCanal;
+// Objeto tipo File para el archivo donde se guardan los nombres de los archivos
+FILE *ftmp;
 
 // String con el path donde se van a crear los archivos, tambien la extension y el formato del nombre de archivo
-string path = "/home/rsa/Resultados/RegistroContinuo/", extFile = ".dat", nombreArchivo = "YYMMDDhhmmss";
+string path = "/home/rsa/resultados/registro-continuo/", extFile = ".dat", nombreArchivo = "YYMMDDhhmmss";
 // Declara el ptrArchivoCompleto con memoria dinamica, este contendra el path + nombreArchivo + extFile
 string *ptrArchivoCompleto;
 // Bandera que se activa al inicio del muestreo o cuando hay cambio de dia, para crear un nuevo archivo
@@ -185,6 +187,7 @@ void ObtenerOperacion();
 void RecibirBytesMuestra(bool incluyeTiempo);
 void GuardarDatosEnArchivo(unsigned char *vectorDatosGuardar, unsigned int numDatosGuardar);
 void GuardarDatosCanal(unsigned int valCH1, unsigned int valCH2, unsigned int valCH3);
+void GuardarNombreArchivo(const std::string &nombreActualARC);
 void IniciarMuestreo();
 void EnviarTiempoLocal();
 void PasarTiempoToVector(unsigned long longHora, unsigned long longFecha, unsigned char *tramaTiempoSistema);
@@ -269,8 +272,8 @@ int main(void)
         resultTimeDSPIC = ObtenerTiempoDSPIC();
     }
 
-    //Prueba
-    //GuardarDatosCanal(333, 666, 999);
+    // Prueba
+    // GuardarDatosCanal(333, 666, 999);
 
     // Una vez recibido el tiempo, llama al metodo para enviar los comandos de inicio de muestreo
     IniciarMuestreo();
@@ -349,7 +352,7 @@ int Setup()
     bcm2835_spi_setBitOrder(BCM2835_SPI_BIT_ORDER_MSBFIRST);
     bcm2835_spi_setDataMode(BCM2835_SPI_MODE3);
     // Clock divider RPi 2
-    //bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_32);
+    // bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_32);
     // Clock divider RPi 3
     bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_64);
     bcm2835_spi_set_speed_hz(FREQ_SPI);
@@ -583,10 +586,9 @@ void RecibirBytesMuestra(bool incluyeTiempo)
         cout << "Gan " << to_string(ganancia) << " CH1 " << to_string(valCH1) << " CH2 " << to_string(valCH2) << " CH3 " << to_string(valCH3) << endl;
     }
     else
-   
-    //Guarda los las lecturas de los canales en un arcivo de texto:
-    GuardarDatosCanal(valCH1, valCH2, valCH3);
-    
+
+        // Guarda los las lecturas de los canales en un arcivo de texto:
+        GuardarDatosCanal(valCH1, valCH2, valCH3);
 
     // Si se ha recibido tambien el tiempo
     if (incluyeTiempo == true)
@@ -760,10 +762,15 @@ void GuardarDatosEnArchivo(unsigned char *vectorDatosGuardar, unsigned int numDa
         // Obtiene el nombre del archivo en funcion de la hora y fecha del dsPIC
         nombreArchivo = to_string(fechaLongDSPIC);
         nombreArchivo.append(PasarHoraLongToString(horaLongDSPIC));
+        nombreArchivo.append(extFile);
         // Crea una variable con el nombre del archivo completo
-        string archivoCompleto = path + nombreArchivo + extFile;
+        string archivoCompleto = path + nombreArchivo;
         // Concatena el path con el nombre de archivo y la extension
         cout << "Creacion de nuevo archivo: " << archivoCompleto << endl;
+
+        // Guarda el nombre del archivo binario en el archivo temporal:
+        GuardarNombreArchivo(nombreArchivo);
+
         // Abre o crea un archivo binario para guardar los datos muestreados
         // a es append: para agregar datos al archivo sin sobre escribir y en caso de que no haya el archivo lo crea
         // b es de binario. Se pasa el string.c_str() porque requiere una entrada cons char* (C-style string)
@@ -805,7 +812,7 @@ void GuardarDatosCanal(unsigned int valCH1, unsigned int valCH2, unsigned int va
     vectorDatosCanal[1] = valCH2;
     vectorDatosCanal[2] = valCH3;
 
-    fTmpCanal = fopen("/home/rsa/TMP/temporalCanal.txt", "w");
+    fTmpCanal = fopen("/home/rsa/tmp/temporalCanal.txt", "w");
 
     if (fTmpCanal != NULL)
     {
@@ -821,10 +828,46 @@ void GuardarDatosCanal(unsigned int valCH1, unsigned int valCH2, unsigned int va
     }
 
     fclose(fTmpCanal);
-
 }
 //*************************************************************************************************
 // Fin Metodo para guardar los datos temporales de los 3 canales
+//*************************************************************************************************
+
+//*************************************************************************************************
+// Metodo para guardar el nombre del archivo en el archivo temporal
+//*************************************************************************************************
+void GuardarNombreArchivo(const std::string &nombreActualARC)
+{
+    char nombreAnteriorARC[19];
+
+    // Abre el archivo temporal en modo lectura (El archivo debe existir):
+    ftmp = fopen("/home/rsa/tmp/NombreArchivoRegistroContinuo.tmp", "rt");
+    // Recupera el nombre del archivo anterior (Lee solo la primera fila del archivo temporal):
+    fgets(nombreAnteriorARC, 19, ftmp);
+    // Cierra el archivo temporal:
+    fclose(ftmp);
+
+    // Abre el archivo temporal en modo escritura:
+    ftmp = fopen("/home/rsa/tmp/NombreArchivoRegistroContinuo.tmp", "w+");
+
+    // Escribe el nombre del archivo RC actual en el archivo temporal:
+    // fwrite(nombreActualARC.c_str(), sizeof(char), 17, ftmp);
+    // Escribe el nombre del archivo RC anterior en el archivo temporal:
+    // fwrite(nombreAnteriorARC, sizeof(char), 17, ftmp);
+
+    // Escribe el nombre del archivo RC actual en el archivo temporal:
+    fprintf(ftmp, "%s\n", nombreActualARC.c_str());
+    // Escribe el nombre del archivo RC anterior en el archivo temporal:
+    fprintf(ftmp, "%s\n", nombreAnteriorARC);
+
+    printf("\nArchivo RC Actual: %s", nombreActualARC.c_str());
+    printf("\nArchivo RC Anterior: %s\n\n", nombreAnteriorARC);
+
+    // Cierra el archivo temporal:
+    fclose(ftmp);
+}
+//*************************************************************************************************
+// Fin Metodo para guardar el nombre del archivo en el archivo temporal
 //*************************************************************************************************
 
 //*************************************************************************************************

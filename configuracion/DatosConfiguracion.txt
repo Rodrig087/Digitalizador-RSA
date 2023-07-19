@@ -3,5 +3,5 @@ NOM00_
 /home/rsa/resultados/registro-continuo/
 /home/rsa/resultados/eventos-detectados/
 /home/rsa/resultados/eventos-extraidos/
-/home/rsa/resultados/consumo/
+/home/rsa/resultados/mseed/
 
